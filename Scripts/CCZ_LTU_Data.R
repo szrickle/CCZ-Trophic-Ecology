@@ -21,6 +21,9 @@ ccz_ltu <- ccz_ltu %>% mutate(
 
 ccz_ltu$depth_range_m <- factor(ccz_ltu$depth_range_m, levels = c("0-70", "70-450", "450-700", "700-1000", "1000-1500"))
 
+ccz_ltu$g.10.000.m3 <- as.numeric(ccz_ltu$g.10.000.m3)
+ccz_ltu$g.10.000m2 <- as.numeric(ccz_ltu$g.10.000m2)
+
 chord_ccz <- filter(ccz_ltu, Phylum.broader.classification == "Chordata") ### filtering only chordara
 
 filtered_ccz <- filter(chord_ccz, LTU %in% c("Diaphus pacificus", "Diogenichthys laternatus", "Lampanyctus parvicauda", "Scopeloberyx malayanus", "Scopelogadus bispinosus", "Argyropelecus lychnus", "Bathylagoides nigrigenys", "Vinciguerria lucetia", "Idiacanthus antrostomus"))
@@ -31,10 +34,32 @@ ggplot(data = filtered_ccz,
                      fill = LTU)) +
   geom_violin(alpha = 0.7,
               show.legend = FALSE) +
-  facet_wrap(~LTU, ncol = 4) +
+  facet_wrap(~LTU, ncol = 2) +
   labs(y = "Depth Range (m)",
        x = "Log Abundance") +
   theme_bw() +
   theme(strip.text = element_text(face = "italic"))
 
-  
+ggplot(data = filtered_ccz, 
+       mapping = aes(x = log(g.10.000.m3), 
+                     y = fct_rev(depth_range_m),
+                     fill = LTU)) +
+  geom_violin(alpha = 0.7,
+              show.legend = FALSE) +
+  facet_wrap(~LTU, ncol = 2) +
+  labs(y = "Depth Range (m)",
+       x = "Log Cubic Density (m3)") +
+  theme_bw() +
+  theme(strip.text = element_text(face = "italic"))
+
+ggplot(data = filtered_ccz, 
+       mapping = aes(x = log(g.10.000m2), 
+                     y = fct_rev(depth_range_m),
+                     fill = LTU)) +
+  geom_violin(alpha = 0.7,
+              show.legend = FALSE) +
+  facet_wrap(~LTU, ncol = 2) +
+  labs(y = "Depth Range (m)",
+       x = "Log Cubic Density (m2)") +
+  theme_bw() +
+  theme(strip.text = element_text(face = "italic"))
