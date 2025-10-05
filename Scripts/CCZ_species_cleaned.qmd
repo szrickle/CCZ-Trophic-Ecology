@@ -1,0 +1,85 @@
+---
+title: "CCZ LTU Data Cleaning"
+author: "SZR"
+format: html
+---
+
+
+### Libraries 
+
+```{r}
+library(readr)
+library(tidyverse)
+library(here)
+library(ggthemes)
+library(dplyr)
+library(writexl)
+library(kableExtra)
+```
+
+Cleaning **CCZ LTU data** to only select species
+
+```{r}
+ccz_ltu <- read.csv(here("Data/Micro_LTU.csv"))
+ccz_ltu_filtered <- ccz_ltu %>% mutate(
+  depth_range_m = case_when(Net.. == 1 ~ "1000-1500",
+                            Net.. == 2 ~ "700-1000",
+                            Net.. == 3 ~ "450-700",
+                            Net.. == 4 ~ "70-450",
+                            Net.. == 5 ~ "0-70")) %>% ## Renaming net #s to depth ranges
+  filter(
+    !Net..%in% c(0, "4plus5"),
+    !tolower(Tow.Type) %in% "deep", ## filtering deep tows
+    Phylum.broader.classification == "Chordata", ### filtering only chordata
+    LTU %in% c("Diaphus pacificus",
+               "Diogenicthys laternatus",
+               "Lampanyctus parvicauda", 
+               "Scopeloberyx malayanus", 
+               "Scopelogadus bispinosus", 
+               "Argyropelecus lychnus", 
+               "Bathylagoides nigrigenys", 
+               "Vinciguerria lucetia", 
+               "Idiacanthus antrostomus",
+               "Scopelengys tristis")) %>% ## filtering only the targeted species
+   select(-1, ## phylumn/broader classification
+         -2, ## order
+         -4, ## genera
+         -5, ## species
+         -18, ## depth filtered
+         -19, ## volume filtered
+         -20, ## corrected volume
+         -21, ## volume filtered per 10,000m cubed
+         -22, ## n per 10,000m cubed
+         -23, ## n per 10,000m squared
+         -24, ## mass
+         -25, ## mass correction factor
+         -26, ## corrected mass
+         -27, ## g per 10,000m cubed
+         -28, ## g per 10,000m squared
+         -31, ## broad classification again
+         -32, ## micronekton (y/n)
+         -33, ## jar size
+         -34) ## comments %>% ## deleting unnecessary columns
+c("Label", 
+  "Sample..", 
+  "n", 
+  "Family", 
+  "LTU", 
+  "Date", 
+  "Cruise.Number", 
+  "Site", 
+  "Tow.Type", 
+  "Tow..", 
+  "Net..", 
+  "depth_range_m", 
+  "Preservative", 
+  "ETP.Endemic.") ## reordering columns
+
+  
+```
+```{r}
+ccz_ltu_filtered %>%
+  select("LTU", Cruise="Cruise.Number", "Site", DepthRange="depth_range_m", "n") %>%
+  kbl(align = 'c')
+```
+
